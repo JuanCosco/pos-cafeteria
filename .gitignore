@@ -1,0 +1,24 @@
+# entorno
+.env
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# alembic cache
+alembic/versions/__pycache__/
+
+# next.js
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# dbt
+analytics/target/
+analytics/dbt_packages/
+analytics/logs/
+
+# sistema
+.DS_Store
+*.log
