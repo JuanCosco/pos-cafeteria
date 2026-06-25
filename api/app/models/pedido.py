@@ -22,3 +22,4 @@ class Pedido(Base):
 
     mesa = relationship("Mesa", back_populates="pedidos")
     items = relationship("Item", back_populates="pedido")
+    grupos_pago = relationship("GrupoPago", back_populates="pedido")

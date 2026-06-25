@@ -14,5 +14,7 @@ class Item(Base):
     cantidad = Column(Integer, default=1, nullable=False)
     comensal = Column(String(50), nullable=True)  # ← el feature de tu mamá
     es_compartido = Column(Boolean, default=False, nullable=False)
+    grupo_pago_id = Column(Integer, ForeignKey("grupos_pago.id"), nullable=True)
 
     pedido = relationship("Pedido", back_populates="items")
+    grupo_pago = relationship("GrupoPago", back_populates="items")
