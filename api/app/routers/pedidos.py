@@ -54,3 +54,11 @@ def cerrar_pedido(pedido_id: int, db: Session = Depends(get_db)):
     if not pedido:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return pedido
+
+
+@router.get("/{pedido_id}/dividir")
+def dividir_cuenta(pedido_id: int, db: Session = Depends(get_db)):
+    resultado = pedido_service.dividir_cuenta(db, pedido_id)
+    if not resultado:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return resultado

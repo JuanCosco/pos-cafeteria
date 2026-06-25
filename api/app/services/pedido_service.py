@@ -77,3 +77,60 @@ def cerrar(db: Session, pedido_id: int):
 
     db.commit()
     return get_by_id(db, pedido_id)
+
+
+## Dividir cuenta
+def dividir_cuenta(db: Session, pedido_id: int):
+    pedido = get_by_id(db, pedido_id)
+    if not pedido:
+        return None
+
+    compartidos = [i for i in pedido.items if i.es_compartido]
+    individuales = [i for i in pedido.items if not i.es_compartido]
+
+    # comensales únicos que tienen items individuales
+    comensales = list({i.comensal for i in individuales if i.comensal})
+
+    total_compartido = sum(float(i.precio_unitario) * i.cantidad for i in compartidos)
+    parte_compartida = total_compartido / len(comensales) if comensales else 0
+
+    resultado = {}
+    for comensal in comensales:
+        items_propios = [i for i in individuales if i.comensal == comensal]
+        total_propio = sum(float(i.precio_unitario) * i.cantidad for i in items_propios)
+        resultado[comensal] = {
+            "items": [
+                {
+                    "nombre": i.nombre,
+                    "cantidad": i.cantidad,
+                    "subtotal": float(i.precio_unitario) * i.cantidad,
+                }
+                for i in items_propios
+            ],
+            "total_propio": round(total_propio, 2),
+            "parte_compartida": round(parte_compartida, 2),
+            "total_a_pagar": round(total_propio + parte_compartida, 2),
+        }
+
+    # items sin asignar
+    sin_asignar = [i for i in individuales if not i.comensal]
+
+    return {
+        "pedido_id": pedido_id,
+        "comensales": resultado,
+        "compartido": {
+            "items": [
+                {
+                    "nombre": i.nombre,
+                    "cantidad": i.cantidad,
+                    "subtotal": float(i.precio_unitario) * i.cantidad,
+                }
+                for i in compartidos
+            ],
+            "total": round(total_compartido, 2),
+            "dividido_entre": len(comensales),
+        },
+        "sin_asignar": [
+            {"nombre": i.nombre, "cantidad": i.cantidad} for i in sin_asignar
+        ],
+    }
