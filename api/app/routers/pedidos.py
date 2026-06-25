@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.pedido import PedidoCreate, PedidoAddItem, PedidoResponse
 from app.services import pedido_service
+from app.services import grupo_pago_service
 
 router = APIRouter(prefix="/pedidos", tags=["pedidos"])
 
@@ -61,4 +62,32 @@ def dividir_cuenta(pedido_id: int, db: Session = Depends(get_db)):
     resultado = pedido_service.dividir_cuenta(db, pedido_id)
     if not resultado:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return resultado
+
+
+@router.post("/{pedido_id}/grupos", status_code=201)
+def crear_grupos(pedido_id: int, nombres: list[str], db: Session = Depends(get_db)):
+    grupos = grupo_pago_service.crear_grupos(db, pedido_id, nombres)
+    if not grupos:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    return [{"id": g.id, "nombre": g.nombre} for g in grupos]
+
+
+@router.patch("/{pedido_id}/items/{item_id}/asignar")
+def asignar_item(
+    pedido_id: int, item_id: int, grupo_pago_id: int, db: Session = Depends(get_db)
+):
+    item = grupo_pago_service.asignar_item(db, pedido_id, item_id, grupo_pago_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item o grupo no encontrado")
+    return {"item_id": item.id, "grupo_pago_id": item.grupo_pago_id}
+
+
+@router.get("/{pedido_id}/grupos/dividir")
+def dividir_por_grupos(pedido_id: int, db: Session = Depends(get_db)):
+    resultado = grupo_pago_service.dividir(db, pedido_id)
+    if not resultado:
+        raise HTTPException(
+            status_code=404, detail="No hay grupos creados para este pedido"
+        )
     return resultado
