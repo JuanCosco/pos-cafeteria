@@ -23,10 +23,8 @@ class PedidoCreate(BaseModel):
 
 
 class PedidoAddItem(BaseModel):
-    nombre: str
-    precio_unitario: float
+    producto_id: int
     cantidad: int = 1
-    comensal: Optional[str] = None
     es_compartido: bool = False
 
 

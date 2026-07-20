@@ -35,9 +35,13 @@ def pedido_activo_mesa(mesa_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{pedido_id}/items", response_model=PedidoResponse)
 def agregar_item(pedido_id: int, data: PedidoAddItem, db: Session = Depends(get_db)):
-    pedido = pedido_service.add_item(db, pedido_id, data)
-    if not pedido:
+    pedido, error = pedido_service.add_item(db, pedido_id, data)
+    if error == "pedido":
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    if error == "producto":
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    if error == "no_disponible":
+        raise HTTPException(status_code=400, detail="Producto no disponible")
     return pedido
 
 

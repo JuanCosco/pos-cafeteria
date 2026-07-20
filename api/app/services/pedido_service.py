@@ -3,12 +3,15 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.pedido import Pedido, EstadoPedido
 from app.models.item import Item
 from app.models.mesa import Mesa, EstadoMesa
+from app.models.producto import Producto
 from app.schemas.pedido import PedidoCreate, PedidoAddItem
 
 
 def get_by_id(db: Session, pedido_id: int):
     return db.execute(
-        select(Pedido).options(selectinload(Pedido.items)).where(Pedido.id == pedido_id)
+        select(Pedido)
+        .options(selectinload(Pedido.items))
+        .where(Pedido.id == pedido_id)
     ).scalar_one_or_none()
 
 
@@ -38,13 +41,21 @@ def create(db: Session, data: PedidoCreate):
 def add_item(db: Session, pedido_id: int, data: PedidoAddItem):
     pedido = db.get(Pedido, pedido_id)
     if not pedido:
-        return None
+        return None, "pedido"
+
+    # buscar producto y copiar nombre y precio
+    producto = db.get(Producto, data.producto_id)
+    if not producto:
+        return None, "producto"
+    if not producto.disponible:
+        return None, "no_disponible"
+
     item = Item(
         pedido_id=pedido_id,
-        nombre=data.nombre,
-        precio_unitario=data.precio_unitario,
+        producto_id=producto.id,
+        nombre=producto.nombre,
+        precio_unitario=producto.precio,
         cantidad=data.cantidad,
-        comensal=data.comensal,
         es_compartido=data.es_compartido,
     )
     db.add(item)
