@@ -60,7 +60,7 @@ def add_item(db: Session, pedido_id: int, data: PedidoAddItem):
     )
     db.add(item)
     db.commit()
-    return get_by_id(db, pedido_id)
+    return get_by_id(db, pedido_id), None
 
 
 def remove_item(db: Session, pedido_id: int, item_id: int):
