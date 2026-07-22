@@ -43,7 +43,7 @@ Construido como proyecto de portfolio para demostrar integración de un stack mo
 ---
 
 ## Estructura del proyecto
-
+``` TEXT
 pos-cafeteria/
 ├── api/ # FastAPI
 │ ├── app/
@@ -58,7 +58,7 @@ pos-cafeteria/
 └── docker-compose.yml
 
 ---
-
+```
 ## Levantar el proyecto
 
 **Requisitos**
